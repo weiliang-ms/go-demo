@@ -10,26 +10,29 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 var w sync.WaitGroup
 
 func MultipleDownload(files []string, url string, storeDiretory string) {
 
-	// 设置最大协程数量为3（通过信道方式控制）
-	ch := make(chan string, 3)
+	// 设置最大协程数量为20（通过信道方式控制）200M带宽下基本网络成为瓶颈
+	ch := make(chan string, 20)
 	count := len(files)
 	println("下载总个数为：", count)
+
+	t := time.Now()
 
 	// 遍历下载
 	for i := 0; i < count; i++ {
 		ch <- files[i]
 		go download(url, files[i], storeDiretory, ch)
 	}
-
 	// 显示关闭
 	defer close(ch)
 	w.Wait()
+	println("下载耗时：", time.Since(t)/time.Second, "秒")
 }
 
 func download(url string, fileName string, storeDiretory string, ch chan string) {

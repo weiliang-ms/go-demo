@@ -6,7 +6,13 @@ import (
 
 func main() {
 
-	url := "https://mirrors.aliyun.com/centos/8/BaseOS/x86_64/os/Packages/"
-	// 下载文件到XXX下
-	process.MultipleDownload(process.Urls(url), url, "D:\\rpms\\")
+	//url := "https://mirrors.aliyun.com/centos/8/BaseOS/x86_64/os/Packages/"
+	//// 下载文件到XXX下
+	//process.MultipleDownload(process.Urls(url), url, "D:\\rpms\\")
+
+	downloadBilibili(process.TypeDemon)
+}
+
+func downloadBilibili(videoType int) {
+	process.DownloadVideoTopTen(videoType)
 }
