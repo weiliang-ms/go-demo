@@ -3,22 +3,23 @@ package process
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"go-demo/config"
+	"go-demo/utils"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strings"
-	"sync"
 	"time"
 )
 
-var w sync.WaitGroup
+var wgp utils.WaitGroupPool
 
 func MultipleDownload(files []string, url string, storeDiretory string) {
-
-	// 设置最大协程数量为20（通过信道方式控制）200M带宽下基本网络成为瓶颈
-	ch := make(chan string, 20)
+	num := &config.ThreadNumber
+	println(num)
+	wgp := utils.NewWaitGroupPool(5)
 	count := len(files)
 	println("下载总个数为：", count)
 
@@ -26,18 +27,18 @@ func MultipleDownload(files []string, url string, storeDiretory string) {
 
 	// 遍历下载
 	for i := 0; i < count; i++ {
-		ch <- files[i]
-		go download(url, files[i], storeDiretory, ch)
+		wgp.Add()
+		go func(url string, fileName string, storeDiretory string) {
+			defer wgp.Done()
+			download(url, fileName, storeDiretory)
+		}(url, files[i], storeDiretory)
 	}
-	// 显示关闭
-	defer close(ch)
-	w.Wait()
+
 	println("下载耗时：", time.Since(t)/time.Second, "秒")
+	wgp.Wait()
 }
 
-func download(url string, fileName string, storeDiretory string, ch chan string) {
-	w.Add(1)
-	defer w.Done()
+func download(url string, fileName string, storeDiretory string) {
 	//创建目录
 	_ = os.MkdirAll(storeDiretory, 0777)
 
@@ -61,7 +62,8 @@ func download(url string, fileName string, storeDiretory string, ch chan string)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	println(<-ch, "完成")
+
+	println(fileName + "下载完成...")
 }
 
 // 解析a标签中的url

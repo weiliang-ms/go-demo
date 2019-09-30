@@ -102,7 +102,7 @@ func getVideoUrl(url string) string {
 		log.Fatalln(err)
 	}
 
-	println(dom.Find("script[type=\"application/ld+json\"]").Text())
+	println(dom.Find("script").Text())
 
 	return videoUrl
 }
