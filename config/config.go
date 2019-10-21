@@ -1,5 +1,5 @@
 package config
 
 var (
-	ThreadNumber int
+	ThreadNumber = 6 //协程数量
 )

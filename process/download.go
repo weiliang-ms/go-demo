@@ -17,9 +17,8 @@ import (
 var wgp utils.WaitGroupPool
 
 func MultipleDownload(files []string, url string, storeDiretory string) {
-	num := &config.ThreadNumber
-	println(num)
-	wgp := utils.NewWaitGroupPool(5)
+
+	wgp := utils.NewWaitGroupPool(config.ThreadNumber)
 	count := len(files)
 	println("下载总个数为：", count)
 
